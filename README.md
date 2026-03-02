@@ -1,2 +1,2 @@
 # Permyx
-Perymx - the control layer that governs AI agents
+Execution authorization for AI commerce
