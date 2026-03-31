@@ -13,7 +13,7 @@ The Execution Authorization Module (EAM) provides deterministic authorization fo
 ## Endpoints
 
 | Method | Endpoint | Description |
-|---|---|---|
+|--------|----------|-------------|
 | POST | `/agents/v1/exec/authorize` | Issue a short-lived JWT execution token |
 | POST | `/agents/v1/exec/validate` | Validate + consume an execution token |
 | POST | `/agents/v1/exec/observe` | Log an unauthenticated execution attempt |
@@ -26,11 +26,12 @@ All endpoints require an agent API key in the `X-API-Key` header.
 ## Authorization Flow
 
 ```
-Agent ──► POST /exec/authorize ──► Permyx issues JWT (120s TTL)
+Agent
+──► POST /exec/authorize ──► Permyx issues JWT (120s TTL)
   │
   ├──► POST /exec/introspect ──► Debug: check token claims & status
   │
-  └──► POST /exec/validate ──► Permyx validates + consumes token
+  └──► POST /exec/validate   ──► Permyx validates + consumes token
           │
           ├── allowed: true  → Agent proceeds to checkout
           └── allowed: false → Agent handles denial
@@ -61,7 +62,7 @@ curl -X POST https://api.sandbox.permyx.io/agents/v1/exec/authorize \
 ### Request Body
 
 | Field | Type | Required | Description |
-|---|---|---|---|
+|-------|------|----------|-------------|
 | `storeId` | string | Yes | Target merchant store ID |
 | `permyxProductId` | string | Yes | Permyx product UUID |
 | `sourceVariantId` | string | Yes | Source platform variant ID (e.g. `shopify:variant:123456`) |
@@ -77,7 +78,7 @@ curl -X POST https://api.sandbox.permyx.io/agents/v1/exec/authorize \
 ```json
 {
   "executionToken": "eyJhbGciOiJSUzI1NiIs...",
-  "expiresAt": "2026-03-02T20:15:45Z",
+  "expiresAt": "2026-03-30T20:15:45Z",
   "traceId": "trc_abc123",
   "decision": "allowed"
 }
@@ -117,7 +118,7 @@ curl -X POST https://api.sandbox.permyx.io/agents/v1/exec/validate \
 ### Request Body
 
 | Field | Type | Required | Description |
-|---|---|---|---|
+|-------|------|----------|-------------|
 | `storeId` | string | Yes | Store ID (must match the token's storeId) |
 | `executionToken` | string | Yes | The JWT token from `/authorize` |
 | `checkoutContext.cartToken` | string | No | Optional cart token for audit |
@@ -168,7 +169,7 @@ curl -X POST https://api.sandbox.permyx.io/agents/v1/exec/observe \
 ### Request Body
 
 | Field | Type | Required | Description |
-|---|---|---|---|
+|-------|------|----------|-------------|
 | `storeId` | string | Yes | Target store ID |
 | `sourceVariantId` | string | No | Variant ID if known |
 | `quantity` | number | No | Quantity if known |
@@ -205,7 +206,7 @@ curl -X POST https://api.sandbox.permyx.io/agents/v1/exec/introspect \
 ### Request Body
 
 | Field | Type | Required | Description |
-|---|---|---|---|
+|-------|------|----------|-------------|
 | `executionToken` | string | Yes | The JWT token to inspect |
 
 ### Response (200)
@@ -230,7 +231,7 @@ curl -X POST https://api.sandbox.permyx.io/agents/v1/exec/introspect \
 ```
 
 | Field | Type | Description |
-|---|---|---|
+|-------|------|-------------|
 | `valid` | boolean | Whether the token signature and structure are valid |
 | `expired` | boolean | Whether the token has expired |
 | `claims` | object | Decoded token claims (null if invalid) |
@@ -247,7 +248,7 @@ Tokens are RS256-signed JWTs with a 120-second TTL. They are bound to a specific
 ### Claims
 
 | Claim | Type | Description |
-|---|---|---|
+|-------|------|-------------|
 | `iss` | string | Always `"permyx"` |
 | `sub` | string | Agent key ID |
 | `storeId` | string | Target store |
@@ -270,7 +271,7 @@ Tokens are RS256-signed JWTs with a 120-second TTL. They are bound to a specific
 When a request is denied, the `reasonCode` field contains one of these standardized codes:
 
 | Code | Description |
-|---|---|
+|------|-------------|
 | `NO_TOKEN` | No execution token provided |
 | `TOKEN_EXPIRED` | Token has expired (>120s) |
 | `INVALID_SIGNATURE` | JWT signature verification failed |
@@ -302,7 +303,7 @@ All error responses follow this format:
 ### HTTP Status Codes
 
 | Status | Meaning |
-|---|---|
+|--------|---------|
 | 200 | Success |
 | 400 | Invalid request (missing/malformed fields) |
 | 401 | Invalid or missing API key |
@@ -317,7 +318,7 @@ All error responses follow this format:
 Agent API keys have per-minute and monthly request limits based on tier. Rate limit headers are included in every response:
 
 | Header | Description |
-|---|---|
+|--------|-------------|
 | `X-RateLimit-Limit` | Requests per minute allowed |
 | `X-RateLimit-Remaining` | Requests remaining in current window |
 | `X-RateLimit-Reset` | Unix timestamp when the window resets |
@@ -327,5 +328,6 @@ Agent API keys have per-minute and monthly request limits based on tier. Rate li
 ## Changelog
 
 | Date | Change |
-|---|---|
+|------|--------|
+| 2026-03-30 | docs: Architecture, data contract, platform overview, feed adapters, catalog API |
 | 2026-03-02 | Initial beta documentation published |
