@@ -10,7 +10,7 @@ Permyx sits between AI agents and merchant checkouts. We issue, validate, and lo
 
 - **Cryptographic execution tokens** — RS256-signed JWTs with intent binding, replay protection, and 120-second TTL. Tokens are burn-on-use with `jti` tracking.
 - **Sub-second authorization decisions** — Policy evaluation at the speed of agent execution. Every authorize/validate cycle must complete in <100ms.
-- **Multi-protocol gateway** — Supporting OpenAI ACP, Google UCP, Microsoft MCP, and Meta Commerce Graph as a governed intermediary.
+- **Protocol interoperability** — Supporting OpenAI ACP, Google UCP, Microsoft MCP, and Meta Commerce Graph while preserving merchant policy control and evidence integrity.
 - **Real-time merchant dashboards** — Next.js portal with live execution event streams, agent activity visualization, and policy configuration.
 - **Distributed event architecture** — Azure Service Bus topics for execution event fanout, with Cosmos DB for immutable audit trails.
 - **Commerce platform connectors** — Shopify OAuth, BigCommerce, WooCommerce ingestion pipelines that normalize catalog data for authorization rule evaluation.

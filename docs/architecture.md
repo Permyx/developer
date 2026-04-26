@@ -82,7 +82,7 @@ Permyx should not promise:
 
 ## Protocol Integrations
 
-Permyx acts as a governed gateway for protocol-driven commerce actions.
+Permyx interoperates with protocol ecosystems while keeping merchant policy and governance evidence centralized.
 
 | Protocol | Vendor | Version | Discovery Method |
 |----------|--------|---------|------------------|
@@ -115,8 +115,8 @@ Permyx acts as a governed gateway for protocol-driven commerce actions.
 
 ### Supporting Surfaces
 
-- Feed adapters for protocol compatibility
-- Public catalog API for discovery
+- Integration adapters for supported execution paths
+- Policy and onboarding surfaces for merchant control
 - Dashboard timelines for governance evidence
 
 ---

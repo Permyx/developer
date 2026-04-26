@@ -329,5 +329,5 @@ Agent API keys have per-minute and monthly request limits based on tier. Rate li
 
 | Date | Change |
 |------|--------|
-| 2026-03-30 | docs: Architecture, data contract, platform overview, feed adapters, catalog API |
+| 2026-03-30 | docs: Architecture, data contract, platform overview, and execution-governance baseline alignment |
 | 2026-03-02 | Initial beta documentation published |
