@@ -1,6 +1,6 @@
 # Contributing to Permyx
 
-We're building the execution authorization layer for AI commerce — the infrastructure that governs what AI agents are allowed to do before they act.
+We're building the execution authorization and governance control plane for AI commerce — the infrastructure that governs what AI agents are allowed to do before they act and proves what happened across channels.
 
 ## What We're Building
 

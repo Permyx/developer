@@ -1,140 +1,162 @@
 # Permyx Platform Overview
 
-> **Last Updated:** March 2026
+> **Last Updated:** April 26, 2026
+> **Version:** 3.0 - Pivot Baseline (Authorization + Governance Evidence)
 
 ## What is Permyx?
 
-**Execution Authorization for AI Commerce**
+**Execution Authorization and Governance Control Plane for AI Commerce**
 
-Permyx is the execution authorization layer that governs what AI agents are allowed to do in commerce — before they act.
+Permyx determines what AI agents are allowed to do in commerce before execution, and proves what happened across channels after execution.
 
-We sit between AI agents and merchant checkout. We don't replace payment processors, fraud tools, or checkout platforms. We add the deterministic enforcement layer that governs agent authority before any payment or fulfillment action occurs.
+We do not replace payment processors, fraud tools, or checkout platforms. We provide deterministic governance for AI-initiated actions: scoped authority, policy enforcement, replay controls, and audit-grade execution evidence.
 
 ---
 
 ## Why Permyx Exists
 
-Commerce infrastructure was built for humans. Every checkout flow assumes:
+Commerce infrastructure was built for humans. Traditional checkout assumptions still are:
 
 - A human is present and consenting
 - Authentication equals intent
 - Payment approval equals permission to act
 
-AI agents break all three assumptions. They act at machine speed, without a human present, with intent that may be ambiguous. Fraud models trained on human behavior cannot evaluate them accurately.
+AI agents break all three assumptions. They can act at machine speed, with delegated intent, across mixed channel paths where a human is not actively present.
 
-**No system governs what an AI agent is actually permitted to execute.** Permyx fills that gap.
+**Payment authorization != execution permission.**
 
----
-
-## The Execution Gap
-
-| What Exists Today | What's Missing |
-|-------------------|----------------|
-| Card networks authorize payments | No system authorizes agent execution |
-| Fraud tools score transaction risk | No policy enforcement for agent scope |
-| Merchants set pricing and availability | No token-gated execution for agents |
-| Platforms optimize the buyer experience | No replay protection or burn-on-use tokens |
-| Authentication verifies identity | No scoped authority for what agents can DO |
-
-**Payment authorization ≠ execution permission.**
-
-This is the gap Permyx fills. It is a different layer — upstream of payment, downstream of agent intent — and it is currently unoccupied.
+Permyx exists to close that gap.
 
 ---
 
-## How It Works: The Authorization Flow
+## What Changed in 2026
 
-Five steps, one invariant: **no valid token, no execution.**
+AI commerce now runs through mixed execution paths:
+
+- Referrer-to-merchant checkout paths
+- Built-in AI channel checkout paths
+- Direct storefront or custom headless paths
+
+In some built-in channel flows, storefront-side signals do not consistently fire. That makes attribution and order-source metadata first-class governance evidence.
+
+This is an evidence-model expansion, not a category change.
+
+---
+
+## Non-Negotiable Core
+
+- Permyx is an execution governance layer, not a conversion optimization product
+- Permyx governs what agents are allowed to do before execution where interception exists
+- Permyx issues scoped, time-bound, burn-on-use authority and enforces merchant policy
+- Permyx maintains deterministic, queryable execution audit trails
+
+---
+
+## Product Definition
+
+Permyx is the execution authorization and governance control plane for AI commerce.
+
+It has two coupled functions:
+
+### 1) Authorization Function
+
+- Token issuance and validation
+- Burn-on-use and replay controls
+- Policy-based allow and deny logic
+- Merchant-governed scope, limits, and TTL
+
+### 2) Evidence Function
+
+- Channel and referrer attribution ingestion
+- Order-source and checkout metadata enrichment
+- Confidence-rated execution outcomes
+- Unified, queryable governance timeline
+
+The evidence function supports governance truth. It is not a marketing analytics function.
+
+---
+
+## Holistic Governance Flow
+
+Six steps, one invariant: **no valid authority, no valid execution claim.**
 
 | # | Step | What Happens |
-|---|------|--------------|
-| 01 | Agent requests auth | Agent calls `POST /authorize` with identity, cart value, SKU list, merchant ID, and requested scope |
-| 02 | Policy evaluation | Permyx validates cart value cap, SKU whitelist, agent identity, velocity rate, and TTL against merchant-defined policies |
-| 03 | Token issued | A signed JWT execution token is returned, cryptographically bound to the execution context |
-| 04 | Token carried to checkout | The agent passes the token to the checkout surface; the checkout validates via `POST /validate` |
-| 05 | Burn-on-use + audit log | Token is consumed on validation — it cannot be reused. Every step is logged with a trace ID |
+|---|------|-------------|
+| 01 | Agent requests authority | Agent calls `POST /agents/v1/exec/authorize` with identity, merchant, cart value, SKU scope, and action scope |
+| 02 | Policy evaluation | Permyx checks cart cap, SKU whitelist, identity trust, velocity, and TTL. Result: allowed or denied with reason code |
+| 03 | Scoped token issuance | Signed execution token is bound to execution context |
+| 04 | Validation where supported | Checkout path calls `POST /agents/v1/exec/validate`; token is consumed (burn-on-use) |
+| 05 | Evidence ingestion | Permyx correlates execution events with attribution and order-source metadata |
+| 06 | Unified timeline | Governance events are queryable for audit, investigation, and reporting |
 
 ---
 
-## V1 API Surface
-
-### Execution Authorization Module (EAM)
+## API Surface
 
 | Method | Endpoint | Purpose |
 |--------|----------|---------|
-| POST | `/agents/v1/exec/authorize` | Request execution token. Validates agent, cart, policy. Returns ISSUED or DENIED |
-| POST | `/agents/v1/exec/validate` | Consume or inspect an execution token. Enforces burn-on-use. Detects replay |
-| POST | `/agents/v1/exec/observe` | Log unauthenticated execution attempt |
-| POST | `/agents/v1/exec/introspect` | Inspect a token without consuming |
+| POST | `/agents/v1/exec/authorize` | Request scoped execution authority |
+| POST | `/agents/v1/exec/validate` | Consume or inspect execution token |
+| POST | `/agents/v1/exec/observe` | Log observed unauthenticated execution attempts |
+| POST | `/agents/v1/exec/introspect` | Inspect token state without consuming |
 
-### Feed Adapters
-
-Feed adapters export Permyx product data in formats required by AI shopping platforms.
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/feeds/:storeId/google-merchant.xml` | Google Merchant Center RSS 2.0 feed |
-| GET | `/feeds/:storeId/openai-acp.jsonl` | OpenAI Agentic Commerce Protocol (ACP) feed |
-| GET | `/feeds/:storeId/openai-acp/validate` | Validate ACP feed compliance |
-| GET | `/feeds/:storeId/stats` | Feed statistics and readiness |
-| GET | `/feeds/:storeId/manifest.json` | Feed manifest with all URLs |
-| GET | `/feeds/:storeId/gpt-action/openapi.yaml` | OpenAPI spec for GPT Actions |
-
-### Public Catalog API
-
-The primary discovery surface for AI agents. Agents query this API to discover products across all participating merchants.
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/catalog/search` | Search products across all merchants |
-| GET | `/api/v1/catalog/products/:permyxId` | Get product by stable Permyx ID |
-| GET | `/api/v1/catalog/merchants` | List participating merchants |
-| GET | `/api/v1/catalog/merchants/check?domain=` | Check if a domain participates |
+See [execution-auth-api.md](./execution-auth-api.md) for request and response details.
 
 ---
 
-## Enforcement Model
+## Promise Boundaries
 
-### V1 — Available Now: Full Observability
+### Promise We Can Keep Now
 
-V1 is **log-only**. No checkout is blocked. Merchants gain visibility into agent activity before enforcement activates.
+- Execution authorization where interception and validation are available
+- Policy-based allow and deny outcomes with deterministic reason codes
+- Cross-channel governance evidence using attribution and order metadata
+- Merchant-governed controls and auditability across AI commerce surfaces
 
-- Execution authorization API (all 4 endpoints)
-- Execution event log and merchant dashboard
-- Agent identity tracking
-- Policy simulation (log would-be denials)
-- Replay attempt detection (logged, not blocked)
-- Interactive API Playground in portal
-- Shopping Agent Simulator with 4 protocol personas
+### Promise We Should Not Make
 
-### V1.1 — Coming Next: Policy Enforcement
+Permyx should not claim universal real-time pre-checkout blocking across every AI channel path today.
 
-- Checkout blocking on invalid/missing token
-- Shopify native Checkout Function
-- Token burn-on-use enforced at validation
-- Policy enforcement: SKU whitelist, cart value caps, velocity limits
+Reason: some platform-mediated paths do not expose full interception points to third-party middleware.
 
 ---
 
-## Who Uses Permyx
+## Phase Model
 
-| Customer | What They Get |
-|----------|---------------|
-| **Merchants** | Control over what AI agents can do with their catalog — authorization, policy enforcement, full audit trail |
-| **AI Agent Builders** | Execution authorization tokens that prove permission to act, plus structured catalog data |
-| **Commerce Platforms** | Governance infrastructure that protects their merchants from uncontrolled agent behavior |
+### Phase 1 - Log-Only Governance Visibility
+- Authorization and validation visibility
+- Replay detection and policy simulation
+- Channel-attributed evidence
+
+### Phase 2 - Policy Enforcement
+- Token-required validation where interception exists
+- Burn-on-use, replay, and stale-context rejection where supported
+
+### Phase 3 - Cross-Channel Governance
+- Unified policy surface
+- Unified timeline across mixed path types
 
 ---
 
-## Protocol Support
+## Integration Patterns
 
-Permyx integrates with the emerging AI commerce protocols:
+### Pattern 1 - Direct Interception Path
+Token validation enforced inline for headless or custom stacks.
 
-| Protocol | Vendor | Integration |
-|----------|--------|-------------|
-| **ACP** (Agentic Commerce Protocol) | OpenAI | ACP JSONL feed export, GPT Action specs |
-| **UCP** (Universal Commerce Protocol) | Google | Merchant Center feed compatibility |
-| **MCP** (Model Context Protocol) | Microsoft | MCP tool invocation support |
-| **Commerce Graph API** | Meta | Social signal integration |
+### Pattern 2 - Platform Hook Path
+Token validation enforced through available platform extension points.
 
-Permyx enforces merchant policy before any protocol-based transaction reaches the commerce platform.
+### Pattern 3 - Referrer/Built-In Evidence Path
+When interception is limited, Permyx still establishes governance truth through attribution and correlated events.
+
+---
+
+## Related Docs
+
+- [architecture.md](./architecture.md) - Technical architecture
+- [execution-auth-api.md](./execution-auth-api.md) - API reference
+- [data-contract.md](./data-contract.md) - Data contract and protocol capabilities
+
+---
+
+Permyx - Execution Authorization and Governance for AI Commerce

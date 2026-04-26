@@ -1,12 +1,12 @@
 # Execution Authorization API Reference
 
-> **Version:** V1 — Log-Only (Execution Authorization Beta)  
+> **Version:** V1 - Visibility-First (Execution Authorization + Governance Evidence)  
 > **Base URL:** `https://api.sandbox.permyx.io`  
 > **Authentication:** `X-API-Key: permyx_agent_xxx`
 
 The Execution Authorization Module (EAM) provides deterministic authorization for machine-initiated checkout attempts. Agents obtain a short-lived JWT execution token before proceeding with a purchase. Every decision is logged and visible in the merchant dashboard.
 
-> **V1 operates in log-only mode.** No checkout blocking. Authorization decisions are logged for merchant visibility. Enforcement mode unlocks in V1.1.
+> **V1 is visibility-first for checkout blocking.** Authorization decisions are always logged for merchant visibility. Enforcement is applied where supported interception points exist, while evidence is captured across all channel paths.
 
 ---
 
@@ -283,7 +283,7 @@ When a request is denied, the `reasonCode` field contains one of these standardi
 | `VARIANT_NOT_FOUND` | Variant not found in store catalog |
 | `RATE_LIMITED` | Agent key rate limit exceeded |
 | `POLICY_DENIED` | General policy denial |
-| `ENFORCE_NOT_AVAILABLE` | Enforcement mode not yet available (V1 is log-only) |
+| `ENFORCE_NOT_AVAILABLE` | Enforcement not available for this integration path |
 
 ---
 
